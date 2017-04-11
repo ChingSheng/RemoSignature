@@ -2,19 +2,20 @@ package scottychang.remosignature.signature;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.hannesdorfmann.mosby3.mvp.MvpFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import scottychang.remosignature.R;
 
@@ -28,9 +29,11 @@ import scottychang.remosignature.R;
  */
 public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> implements CanvasView {
 
-    @BindView(R.id.texttest)
-    TextView texttest;
     Unbinder unbinder;
+    @BindView(R.id.signatureview)
+    SignatureView signatureview;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
     private OnFragmentInteractionListener mListener;
 
     public CanvasFragment() {
@@ -45,6 +48,7 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
+     *
      * @return A new instance of fragment CanvasFragment.
      */
     public static CanvasFragment newInstance() {
@@ -63,6 +67,29 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_canvas, container, false);
         unbinder = ButterKnife.bind(this, view);
+
+        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.alarm_fake);
+
+        signatureview.setSignatureBitmap(b);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Boolean toggle= !signatureview.isSignaturing();
+                Snackbar.make(view, "Toggle cap: "+ toggle.toString(), Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+                signatureview.setIsSignaturing(toggle);
+            }
+        });
+
+        fab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                signatureview.getSignaturePNG();
+                return true;
+            }
+        });
+
         return view;
     }
 
@@ -81,11 +108,6 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @OnClick(R.id.texttest)
-    public void onTextClick(){
-        setData(null);
     }
 
     @Override
