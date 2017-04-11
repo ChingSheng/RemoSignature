@@ -18,19 +18,25 @@ android {
         }
     }
 }
-
+repositories {
+    maven { url "https://clojars.org/repo/" }
+}
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+
     compile 'com.android.support:appcompat-v7:25.3.0'
     compile 'com.android.support:design:25.3.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha4'
-    testCompile 'junit:junit:4.12'
-
+    compile 'com.jakewharton:butterknife:8.5.1'
+    compile 'frankiesardo:icepick:3.2.0'
+    annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
     compile 'com.hannesdorfmann.mosby3:viewstate:3.0.2'
     compile 'com.hannesdorfmann.mosby3:mvp-lce:3.0.2'
     compile 'com.hannesdorfmann.mosby3:mvp-nullobject-presenter:3.0.2'
-
+    compile 'com.android.support:support-v4:25.3.0'
+    testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 }
