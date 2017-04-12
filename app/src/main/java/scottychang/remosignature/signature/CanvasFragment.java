@@ -68,7 +68,7 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
         View view = inflater.inflate(R.layout.fragment_canvas, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.alarm_fake);
+        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.temp);
 
         signatureview.setSignatureBitmap(b);
         fab.setOnClickListener(new View.OnClickListener() {
