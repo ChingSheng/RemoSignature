@@ -18,9 +18,10 @@
         android:layout_margin="@dimen/fab_margin"
         android:src="@android:drawable/ic_menu_edit"/>
 
-    <scottychang.remosignature.signature.SignatureView
-        android:id="@+id/signatureview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <com.github.gcacace.signaturepad.views.SignaturePad
+    android:id="@+id/signatureview"
+    android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 
 </FrameLayout>

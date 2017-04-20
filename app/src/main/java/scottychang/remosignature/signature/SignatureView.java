@@ -291,7 +291,8 @@ public class SignatureView extends View {
      */ 
     public void clear() { 
         mSignature = null; 
-        mPath.rewind(); 
+        mPath.rewind();
+
         // Repaints the entire view. 
         invalidate(); 
     } 
@@ -320,7 +321,8 @@ public class SignatureView extends View {
             mSignature = Bitmap.createBitmap(getWidth(), getHeight(),
             Bitmap.Config.ARGB_8888); 
             Canvas c = new Canvas(mSignature);
-            c.drawPath(mPath, mPaint); 
+            c.drawPath(mPath, mPaint);
+
             return mSignature;
         } 
     } 
@@ -328,7 +330,8 @@ public class SignatureView extends View {
     public void setSignatureWidth(float width) { 
         mSignatureWidth = width; 
         mPaint.setStrokeWidth(mSignatureWidth); 
-        invalidate(); 
+        invalidate();
+
     } 
  
     public float getSignatureWidth(){ 

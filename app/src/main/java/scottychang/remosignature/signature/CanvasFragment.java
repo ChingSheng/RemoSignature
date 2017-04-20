@@ -1,23 +1,26 @@
 package scottychang.remosignature.signature;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.gcacace.signaturepad.views.SignaturePad;
 import com.hannesdorfmann.mosby3.mvp.MvpFragment;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import scottychang.remosignature.R;
+import scottychang.remosignature.svg.SVGfileHelper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,9 +32,11 @@ import scottychang.remosignature.R;
  */
 public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> implements CanvasView {
 
+    private static final String TAG = CanvasFragment.class.getSimpleName();
+
     Unbinder unbinder;
     @BindView(R.id.signatureview)
-    SignatureView signatureview;
+    SignaturePad signatureview;
     @BindView(R.id.fab)
     FloatingActionButton fab;
     private OnFragmentInteractionListener mListener;
@@ -68,29 +73,50 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
         View view = inflater.inflate(R.layout.fragment_canvas, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.temp);
-
-        signatureview.setSignatureBitmap(b);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Boolean toggle= !signatureview.isSignaturing();
-                Snackbar.make(view, "Toggle cap: "+ toggle.toString(), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-                signatureview.setIsSignaturing(toggle);
+                signatureview.clear();
             }
         });
 
         fab.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                signatureview.getSignaturePNG();
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String svgString = signatureview.getSignatureSvg();
+                        SVGfileHelper helper = new SVGfileHelper();
+                        helper.setFile(svgString);
+                        send(helper.getFile());
+                    }
+                }).start();
+
                 return true;
             }
         });
 
         return view;
+    }
+
+    private void send(File file) {
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+
+        // TODO: email list (sharedpref)
+        String[] to = {"scott@sixnology.com",};
+
+        intent.putExtra(Intent.EXTRA_EMAIL, to);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "RemoSignature svg file");
+        intent.putExtra(Intent.EXTRA_TEXT, "Text");
+
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + file.getAbsolutePath()));
+        intent.setType("application/text");
+
+        startActivity(Intent.createChooser(intent, "Choose one"));
     }
 
     @Override
