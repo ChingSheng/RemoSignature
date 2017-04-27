@@ -20,6 +20,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import scottychang.remosignature.R;
+import scottychang.remosignature.account.AccountMananger;
 import scottychang.remosignature.svg.SVGfileHelper;
 
 /**
@@ -90,7 +91,7 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
                         String svgString = signatureview.getSignatureSvg();
                         SVGfileHelper helper = new SVGfileHelper();
                         helper.setFile(svgString);
-                        send(helper.getFile());
+                        sendMail(helper.getFile());
                     }
                 }).start();
 
@@ -101,13 +102,13 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
         return view;
     }
 
-    private void send(File file) {
+    private void sendMail(File file) {
 
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
 
-        // TODO: email list (sharedpref)
-        String[] to = {"scott@sixnology.com",};
+        String[] to = new String[1];
+        to[0] = AccountMananger.getInstance().getAccountEmail();
 
         intent.putExtra(Intent.EXTRA_EMAIL, to);
         intent.putExtra(Intent.EXTRA_SUBJECT, "RemoSignature svg file");
