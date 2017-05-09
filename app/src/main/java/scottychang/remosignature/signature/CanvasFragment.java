@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.github.gcacace.signaturepad.views.SignaturePad;
 import com.hannesdorfmann.mosby3.mvp.MvpFragment;
@@ -20,8 +21,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import scottychang.remosignature.R;
-import scottychang.remosignature.account.AccountMananger;
-import scottychang.remosignature.svg.SVGfileHelper;
+import scottychang.remosignature.account.PrefMananger;
+import scottychang.remosignature.svg.SVGFileHelper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -71,8 +72,10 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         View view = inflater.inflate(R.layout.fragment_canvas, container, false);
         unbinder = ButterKnife.bind(this, view);
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,10 +91,16 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        String svgString = signatureview.getSignatureSvg();
-                        SVGfileHelper helper = new SVGfileHelper();
-                        helper.setFile(svgString);
-                        sendMail(helper.getFile());
+                        final String serverUrl= PrefMananger.getInstance().getServerSite();
+                        if (serverUrl != null && serverUrl.contains("http://")) {
+                            String svgString = getCurrentCanvasSVG();
+                            SVGFileHelper helper = new SVGFileHelper(getActivity());
+                            helper.setServerUrl(serverUrl);
+                            helper.setFile(svgString);
+                            helper.sendByHttp();
+                        } else {
+                            Toast.makeText(getActivity(), getString(R.string.invalid_server_url), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }).start();
 
@@ -108,7 +117,7 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
         intent.setAction(Intent.ACTION_SEND);
 
         String[] to = new String[1];
-        to[0] = AccountMananger.getInstance().getAccountEmail();
+        to[0] = PrefMananger.getInstance().getAccountEmail();
 
         intent.putExtra(Intent.EXTRA_EMAIL, to);
         intent.putExtra(Intent.EXTRA_SUBJECT, "RemoSignature svg file");
@@ -161,5 +170,9 @@ public class CanvasFragment extends MvpFragment<CanvasView, CanvasPresenter> imp
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public String getCurrentCanvasSVG() {
+        return signatureview.getSignatureSvg();
     }
 }

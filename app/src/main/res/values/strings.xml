@@ -8,4 +8,12 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="invalid_server_url">Invalid Server URL</string>
+    <string name="set_server_site">"Click and set Server site"</string>
+    <string name="clean_server_site">"Clean Server setting"</string>
+
+    <!-- UI button -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

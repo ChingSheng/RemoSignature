@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import scottychang.remosignature.R;
 import scottychang.remosignature.account.PrefMananger;
 import scottychang.remosignature.util.RsCallback;
 
@@ -15,28 +16,27 @@ import scottychang.remosignature.util.RsCallback;
  * Created by Scarlet on 2017/4/27.
  */
 
-@Deprecated
-public class EditEmailDialogHelper {
+public class EditServerSiteDialogHelper {
 
     Context mContext;
     RsCallback<Void> mOnButtonClickCallback;
-    public EditEmailDialogHelper(Context context, RsCallback<Void> callback) {
+    public EditServerSiteDialogHelper(Context context, RsCallback<Void> callback) {
         mContext = context;
         mOnButtonClickCallback = callback;
     }
 
     public void show() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
-        alertDialog.setTitle("Set account Email");
+        alertDialog.setTitle(mContext.getString(R.string.set_server_site));
 
         final EditText input = new EditText(mContext);
-        input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        input.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
 
-        String text = PrefMananger.getInstance().getAccountEmail();
+        String text = PrefMananger.getInstance().getServerSite();
         String defaultInput = text;
 
         input.setText(defaultInput);
@@ -44,16 +44,16 @@ public class EditEmailDialogHelper {
         alertDialog.setView(input);
 
         alertDialog.setPositiveButton(
-                "OK",
+                mContext.getString(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        String email = input.getText().toString();
+                        String serverSite = input.getText().toString();
 
-                        if (email == null || email.length() == 0) {
-                            PrefMananger.getInstance().resetAccountEmail();
-                            Toast.makeText(mContext, "Clean Email setting", Toast.LENGTH_SHORT).show();
+                        if (serverSite == null || serverSite.length() == 0) {
+                            PrefMananger.getInstance().resetServerSite();
+                            Toast.makeText(mContext, mContext.getString(R.string.clean_server_site), Toast.LENGTH_SHORT).show();
                         } else {
-                            PrefMananger.getInstance().setAccountEmail(email);
+                            PrefMananger.getInstance().setServerSite(serverSite);
                         }
                         dialog.dismiss();
                         mOnButtonClickCallback.onSuccess(null);
@@ -61,7 +61,7 @@ public class EditEmailDialogHelper {
                 });
 
         alertDialog.setNegativeButton(
-                "Cancel",
+                mContext.getString(R.string.cancel),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -69,8 +69,6 @@ public class EditEmailDialogHelper {
                 });
 
         alertDialog.show();
-
-
     }
 
 }

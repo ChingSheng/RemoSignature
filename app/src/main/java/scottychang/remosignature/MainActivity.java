@@ -15,13 +15,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import scottychang.remosignature.account.AccountMananger;
+import scottychang.remosignature.account.PrefMananger;
 import scottychang.remosignature.signature.CanvasFragment;
+import scottychang.remosignature.svg.SVGFileHelper;
 import scottychang.remosignature.util.RsCallback;
-import scottychang.remosignature.widget.EditEmailDialogHelper;
+import scottychang.remosignature.widget.EditServerSiteDialogHelper;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, CanvasFragment.OnFragmentInteractionListener {
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.nav_view)
     NavigationView navigationView;
 
-    TextView emailText;
+    TextView serverText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,21 +57,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     //================================================================================
-    // AccountMananger
+    // PrefMananger
     //================================================================================
 
     private void initAccountManager(){
-        AccountMananger.newInstance(this);
+        PrefMananger.newInstance(this);
     }
 
     //================================================================================
     // CanvasFragment
     //================================================================================
 
+    CanvasFragment mCanvasFragment;
+
     private void initCanvasFragment() {
-        CanvasFragment myf = new CanvasFragment();
+        mCanvasFragment = new CanvasFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.content_fragment, myf);
+        transaction.add(R.id.content_fragment, mCanvasFragment);
         transaction.commit();
     }
 
@@ -77,33 +81,31 @@ public class MainActivity extends AppCompatActivity
     // NavigationView
     //================================================================================
 
-    private static final String defaultUISetEmail = "Click and set Account Email";
-
     private void initNavigationView() {
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        emailText = (TextView) navigationView.getHeaderView(0).findViewById(R.id.email_info);
-        emailText.setOnClickListener(new View.OnClickListener() {
+        serverText = (TextView) navigationView.getHeaderView(0).findViewById(R.id.server_info);
+        serverText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showEditMailDialog();
+                showEditServerDialog();
             }
         });
-        updateEmailText();
+        updateServerText();
     }
 
-    private void updateEmailText() {
-        String defaultEmail = AccountMananger.getInstance().getAccountEmail();
-        String textEmail = defaultEmail != null ? defaultEmail : defaultUISetEmail;
-        emailText.setText(textEmail);
+    private void updateServerText() {
+        String defaultServer = PrefMananger.getInstance().getServerSite();
+        String textServer = defaultServer != null ? defaultServer : getString(R.string.set_server_site);
+        serverText.setText(textServer);
     }
 
-    private void showEditMailDialog() {
-        new EditEmailDialogHelper(this, new RsCallback<Void>() {
+    private void showEditServerDialog() {
+        new EditServerSiteDialogHelper(this, new RsCallback<Void>() {
             @Override
             public void onSuccess(Void object) {
-                updateEmailText();
+                updateServerText();
             }
 
             @Override
@@ -155,6 +157,21 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final String serverUrl= PrefMananger.getInstance().getServerSite();
+                    if (serverUrl != null && serverUrl.contains("http://")) {
+                        String svgString = mCanvasFragment.getCurrentCanvasSVG();
+                        SVGFileHelper helper = new SVGFileHelper(MainActivity.this);
+                        helper.setServerUrl(serverUrl);
+                        helper.setFile(svgString);
+                        helper.sendByHttp();
+                    } else {
+                        Toast.makeText(MainActivity.this, getString(R.string.invalid_server_url), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }).start();
 
         }
 
